@@ -3,22 +3,54 @@ import os
 
 from PIL import Image
 
+from vec3 import Vec3
+from ray import Ray
+
+def ray_color(r: Ray) -> Vec3:
+    unit_direction = r.direct.unit_vector()
+    t = 0.5*(unit_direction[1] + 1)
+    return (1-t)*Vec3([1,1,1]) + t*Vec3([0.5,0.7,1.0])
+
+def write_color(file_out, pixel_color: Vec3, flag:str=None):
+    ir = int(255.99 * pixel_color[0])
+    ig = int(255.99 * pixel_color[1])
+    ib = int(255.99 * pixel_color[2])
+
+    if flag == "png":
+        return (ir, ig, ib)
+    else:
+        file_out.write(f'{ir} {ig} {ib}\n')
+    
+
 def path_image(title:str, extension:str) -> str:
-    path = os.path.join(os.path.dirname(__file__), '..', 'images', f'{title}.{extension}')
+    return os.path.join(os.path.dirname(__file__), '..', 'images', f'{title}.{extension}')
 
 
 if __name__ == "__main__":
-    # image
-    title = 'image_0'
-    image_colors = 'P3' # para o formato ppm
-    image_width = 800
-    image_height = 600
 
     if 'images' not in os.listdir(os.path.join(os.path.dirname(__file__), '..')):
         os.mkdir(os.path.join(os.path.dirname(__file__), '..', 'images'))
 
+    # Image
+    title = 'image_1'
+    image_colors = 'P3' # para o formato ppm
+    aspect_ratio = 16/9
+    image_width = 800
+    image_height = int(image_width / aspect_ratio)
+
+    # Camera
+    viewport_height = 2
+    viewport_width = aspect_ratio * viewport_height
+    focal_length = 1
+
+    origin: Vec3 = Vec3([0,0,0])
+    horizontal: Vec3 = Vec3([viewport_width, 0.0, 0.0])
+    vertical: Vec3 = Vec3([0.0, viewport_height, 0.0])
+    lower_left_corner = origin - horizontal/2 - vertical/2 - Vec3([0.0, 0.0, focal_length])
+
+    # Render
+
     # PPM image
-    
     file = open(path_image(title, 'ppm'), 'w')
 
     file.write(f'{image_colors}\n')
@@ -27,15 +59,13 @@ if __name__ == "__main__":
 
     for j in range(image_height-1, -1, -1):
         for i in range(0, image_width):
-            r = i / (image_width-1)
-            g = j / (image_height-1)
-            b = 0.25
+            u = i / (image_width-1)
+            v = j / (image_height-1)
 
-            ir = int(255.99 * r)
-            ig = int(255.99 * g)
-            ib = int(255.99 * b)
+            ray: Ray = Ray(origin, lower_left_corner + u*horizontal + v*vertical - origin)
+            color: Vec3 = ray_color(ray)
 
-            file.write(f'{ir} {ig} {ib}\n')
+            write_color(file, color)
 
     file.close()
 
@@ -45,15 +75,12 @@ if __name__ == "__main__":
 
     for j in range(0, image_height):
         for i in range(0, image_width):
-            r = i / (image_width-1)
-            g = 1 - j / (image_height-1)
-            b = 0.25
+            u = i / (image_width-1)
+            v = 1 - j / (image_height-1)
+            ray: Ray = Ray(origin, lower_left_corner + u*horizontal + v*vertical - origin)
+            color: Vec3 = ray_color(ray)
 
-            ir = int(255.99 * r)
-            ig = int(255.99 * g)
-            ib = int(255.99 * b)
-
-            image_pixel[i, j] = (ir,ig,ib)
+            image_pixel[i, j] = write_color(image_pixel, color, 'png')
 
 
     image_png.save(path_image(title, 'png'), "PNG")
