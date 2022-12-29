@@ -1,12 +1,25 @@
 import math
 import os
 
+import numpy as np
 from PIL import Image
 
 from vec3 import Vec3
 from ray import Ray
 
+def hit_sphere(center:Vec3, radius:float, ray:Ray):
+    origin_center = ray.orig - center
+    a = np.dot(ray.direct, ray.direct)
+    b = 2 * np.dot(origin_center, ray.direct)
+    c = np.dot(origin_center, origin_center) - radius**2
+    discriminant = b**2 - 4*a*c
+    return discriminant > 0
+
+
 def ray_color(r: Ray) -> Vec3:
+    if hit_sphere(center=Vec3([0,0,-1]), radius=0.5, ray=r):
+        return Vec3([1,0,0])
+
     unit_direction = r.direct.unit_vector()
     t = 0.5*(unit_direction[1] + 1)
     return (1-t)*Vec3([1,1,1]) + t*Vec3([0.5,0.7,1.0])
@@ -32,7 +45,7 @@ if __name__ == "__main__":
         os.mkdir(os.path.join(os.path.dirname(__file__), '..', 'images'))
 
     # Image
-    title = 'image_1'
+    title = 'image_2'
     image_colors = 'P3' # para o formato ppm
     aspect_ratio = 16/9
     image_width = 800
