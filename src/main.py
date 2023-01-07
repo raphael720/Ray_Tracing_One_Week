@@ -7,18 +7,6 @@ from PIL import Image
 from vec3 import Vec3
 from ray import Ray
 
-def hit_sphere(center:Vec3, radius:float, ray:Ray) -> float:
-    origin_center = ray.orig - center
-    a = np.dot(ray.direct, ray.direct)
-    b = 2 * np.dot(origin_center, ray.direct)
-    c = np.dot(origin_center, origin_center) - radius**2
-    discriminant = b**2 - 4*a*c
-    if discriminant < 0:
-        return -1.0
-    else:
-        return (-b - np.sqrt(discriminant)) / (2*a)
-
-
 def ray_color(r: Ray) -> Vec3:
     t = hit_sphere(center=Vec3([0,0,-1]), radius=0.5, ray=r)
     if t > 0:
