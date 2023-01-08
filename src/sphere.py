@@ -1,10 +1,10 @@
 from vec3 import Vec3
 from ray import Ray
-from hit_record import HitRecord
+from hittable import HitRecord, Hittable
 
 import numpy as np
 
-class Sphere:
+class Sphere(Hittable):
     def __init__(self, center: Vec3, radius: float):
         self.center = center
         self.radius = radius
