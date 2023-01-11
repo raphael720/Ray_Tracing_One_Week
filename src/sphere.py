@@ -20,7 +20,7 @@ class Sphere(Hittable):
             return False
         discriminant_sqrt = np.sqrt(discriminant)
 
-        # verifcando se as raizes, equação do segundo grau, é fora do range estabelecido
+        # verifcando se as raizes, equação do segundo grau, está fora do range estabelecido
         root = (-haf_b - discriminant_sqrt) / a
         if root < t_min or root > t_max:
             root = (-haf_b + discriminant_sqrt) / a

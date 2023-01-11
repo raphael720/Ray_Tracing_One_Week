@@ -1,18 +1,18 @@
-import math
 import os
+from sys import maxsize
 
-import numpy as np
 from PIL import Image
 
 from vec3 import Vec3
 from ray import Ray
+from sphere import Sphere
+from hittable import HitRecord
+from hittable_list import HittableList
 
-def ray_color(r: Ray) -> Vec3:
-    t = hit_sphere(center=Vec3([0,0,-1]), radius=0.5, ray=r)
-    if t > 0:
-        n: Vec3 = (r.at(t) - Vec3([0,0,-1]))
-        n = n.unit_vector()
-        return 0.5*Vec3([n[0]+1, n[1]+1, n[2]+1])
+def ray_color(r: Ray, word: HittableList) -> Vec3:
+    rec: HitRecord = HitRecord()
+    if word.hit(r, 0, maxsize, rec):
+        return 0.5 * (rec.normal + Vec3([1,1,1]))
 
     unit_direction = r.direct.unit_vector()
     t = 0.5*(unit_direction[1] + 1)
@@ -33,10 +33,17 @@ if __name__ == "__main__":
     path_image = lambda title: os.path.join(os.path.dirname(__file__), '..', 'images', f'{title}.png')
 
     # Image
-    title = 'image_3'
+    title = 'image_4'
     aspect_ratio = 16/9
     image_width = 800 
     image_height = int(image_width / aspect_ratio)
+
+    # Word
+    word: HittableList = HittableList()
+    sphere1: Sphere = Sphere([0,0,-1], 0.5)
+    sphere2: Sphere = Sphere([0,-100.5,-1], 100)
+    word.add(sphere1)
+    word.add(sphere2)
 
     # Camera
     viewport_height = 2
@@ -61,7 +68,7 @@ if __name__ == "__main__":
             v = 1 - j / (image_height-1)
             direction = lower_left_corner + u*horizontal + v*vertical - origin
             ray: Ray = Ray(origin, direction)
-            color: Vec3 = ray_color(ray)
+            color: Vec3 = ray_color(ray, word)
 
             image_pixel[i, j] = write_color(color)
 
