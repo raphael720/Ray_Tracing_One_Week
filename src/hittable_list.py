@@ -1,14 +1,12 @@
-from typing import List
-
 from ray import Ray
 from hittable import HitRecord, Hittable
 
 class HittableList(Hittable):
-    def __init__(self, list_objects: List[Hittable] = None):
+    def __init__(self, list_objects: list[Hittable] = None):
         if list_objects:
-            self.objects: List[Hittable] = list_objects
+            self.objects: list[Hittable] = list_objects
         else:
-            self.objects: List[Hittable] = list()
+            self.objects: list[Hittable] = list()
 
     def add(self, param_object: Hittable):
         self.objects.append(param_object)
