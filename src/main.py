@@ -1,4 +1,5 @@
 import os
+from math import sqrt
 from sys import maxsize
 
 from numpy import random
@@ -31,7 +32,7 @@ def ray_color(r: Ray, word: HittableList, depth: int) -> Vec3:
     if depth <= 0:
         return Vec3([0,0,0])
 
-    if word.hit(r, 0, maxsize, rec):
+    if word.hit(r, 0.001, maxsize, rec):
         target: Vec3 = rec.point3 + rec.normal + random_in_unit_sphere()
         return 0.5 * ray_color(Ray(rec.point3, target - rec.point3), word, depth-1)
 
@@ -42,9 +43,9 @@ def ray_color(r: Ray, word: HittableList, depth: int) -> Vec3:
 def write_color(pixel_color: Vec3, samples_per_pixel: int) -> tuple[int, int, int]:
     scale = 1 / samples_per_pixel
 
-    r = pixel_color[0] * scale
-    g = pixel_color[1] * scale
-    b = pixel_color[2] * scale
+    r = sqrt(pixel_color[0] * scale)
+    g = sqrt(pixel_color[1] * scale)
+    b = sqrt(pixel_color[2] * scale)
 
     ir = int(255.99 * clamp(r, 0.0, 0.9999))
     ig = int(255.99 * clamp(g, 0.0, 0.9999))
@@ -60,7 +61,7 @@ if __name__ == "__main__":
     path_image = lambda title: os.path.join(os.path.dirname(__file__), '..', 'images', f'{title}.png')
 
     # Image
-    title = 'image_6'
+    title = 'image_7'
     aspect_ratio = 16/9
     image_width = 400 
     image_height = int(image_width / aspect_ratio)
