@@ -13,15 +13,27 @@ from sphere import Sphere
 from hittable import HitRecord
 from hittable_list import HittableList
 
+def random_in_unit_sphere() -> Vec3:
+    while True:
+        p: Vec3 = Vec3.vec_random() * 2 - Vec3([1.0, 1.0, 1.0])
+        if p.squared_length() >= 1:
+            continue
+        return p
+
 def clamp(x: float, float_min: float, float_max: float) -> float:
     if x < float_min: return float_min
     if x > float_max: return float_max
     return x
 
-def ray_color(r: Ray, word: HittableList) -> Vec3:
+def ray_color(r: Ray, word: HittableList, depth: int) -> Vec3:
     rec: HitRecord = HitRecord()
+
+    if depth <= 0:
+        return Vec3([0,0,0])
+
     if word.hit(r, 0, maxsize, rec):
-        return 0.5 * (rec.normal + Vec3([1,1,1]))
+        target: Vec3 = rec.point3 + rec.normal + random_in_unit_sphere()
+        return 0.5 * ray_color(Ray(rec.point3, target - rec.point3), word, depth-1)
 
     unit_direction = r.direct.unit_vector()
     t = 0.5*(unit_direction[1] + 1)
@@ -50,9 +62,10 @@ if __name__ == "__main__":
     # Image
     title = 'image_6'
     aspect_ratio = 16/9
-    image_width = 200 
+    image_width = 400 
     image_height = int(image_width / aspect_ratio)
     sample_per_pixel = 50
+    max_depth = 50
 
     # Word
     word: HittableList = HittableList()
@@ -78,7 +91,7 @@ if __name__ == "__main__":
                 u = (i + random.rand()) / (image_width-1)
                 v = 1 - (j + random.rand()) / (image_height-1)
                 ray: Ray = cam.get_ray(u, v)
-                pixel_color += ray_color(ray, word)
+                pixel_color += ray_color(ray, word, max_depth)
 
             image_pixel[i, j] = write_color(pixel_color, sample_per_pixel)
 
