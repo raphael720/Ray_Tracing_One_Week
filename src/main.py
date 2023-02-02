@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # Image
     title = 'image_7'
     aspect_ratio = 16/9
-    image_width = 400 
+    image_width = 800 
     image_height = int(image_width / aspect_ratio)
     sample_per_pixel = 50
     max_depth = 50
